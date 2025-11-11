@@ -1,0 +1,30 @@
+name: CI Smoke Test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  smoke:
+    name: Verify CI runs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Print environment info
+        run: |
+          echo "Runner: $(uname -a)"
+          echo "Default branch: ${{ github.event.repository.default_branch || 'unknown' }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Ref: ${{ github.ref }}"
+
+      - name: Basic repo sanity
+        run: |
+          echo "Top-level files:" && ls -la
+          echo "Git status:" && git status --porcelain=v1 || true
+
+      - name: Success message
+        run: echo "✅ CI is working"
