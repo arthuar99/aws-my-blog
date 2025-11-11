@@ -13,15 +13,23 @@ resource "aws_lambda_function" "thumbnail_generator" {
     }
   }
 }
+resource "aws_lambda_permission" "allow_s3_invoke_thumbnail" {
+  statement_id  = "AllowExecutionFromS3Bucket"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.thumbnail.arn
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.photos.arn
+}
+
 
 
 resource "aws_s3_bucket_notification" "photos_upload" {
   bucket = aws_s3_bucket.photos.id
 
   lambda_function {
-    lambda_function_arn = aws_lambda_function.thumbnail_generator.arn
+    lambda_function_arn = aws_lambda_function.thumbnail.arn
     events              = ["s3:ObjectCreated:*"]
-    filter_prefix       = ""
-    filter_suffix       = ".jpg"
   }
+
+  depends_on = [aws_lambda_permission.allow_s3_invoke_thumbnail]
 }
