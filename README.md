@@ -7,6 +7,7 @@ Infrastructure as Code (IaC) for a serverless blog application deployed on AWS u
 ```
 .
 ├── apigateway.tf              # API Gateway configuration and endpoints
+├── archive.tf                 # archive_file data sources for packaging Lambdas
 ├── cloudfront.tf              # CloudFront CDN configuration
 ├── dynamodb.tf                # DynamoDB tables for blog posts
 ├── iam.tf                     # IAM roles and policies for Lambda functions
@@ -20,10 +21,16 @@ Infrastructure as Code (IaC) for a serverless blog application deployed on AWS u
 ├── random.tf                  # Random resource IDs for unique naming
 ├── variables.tf               # Terraform variables and defaults
 ├── lambda/
-│   ├── lambda_function.py     # Python source code for Lambda functions
-│   ├── api_posts_function.zip # Packaged API Lambda deployment
-│   ├── thumbnail_function.zip # Packaged thumbnail Lambda deployment
-│   └── welcome_email_function.zip # Packaged email Lambda deployment
+│   ├── api_posts/             # API Lambda source (packaged by archive_file)
+│   │   └── lambda_function.py
+│   ├── thumbnail/             # Thumbnail Lambda source (packaged by archive_file)
+│   │   └── lambda_function.py
+│   ├── welcome_email/         # Welcome-email Lambda source (packaged by archive_file)
+│   │   └── lambda_function.py
+│   └── build/                 # Generated ZIPs (ignored by Git)
+│       ├── api_posts_function.zip
+│       ├── thumbnail_function.zip
+│       └── welcome_email_function.zip
 ├── .gitignore                 # Git ignore rules
 └── README.md                  # This file
 ```
@@ -93,31 +100,19 @@ terraform output
 
 This displays all outputs defined in `outputs.tf`, including API Gateway URL, CloudFront distribution domain, and S3 bucket names.
 
-## Lambda Packaging Notes
+## Lambda Packaging (via archive_file)
 
-This project includes three Lambda functions, each packaged as a ZIP file:
+Lambdas are packaged automatically by Terraform using the `archive_file` data source (see `archive.tf`).
 
-- **api_posts_function.zip** — REST API for blog posts (DynamoDB operations)
-- **thumbnail_function.zip** — Image thumbnail generation triggered by S3 uploads
-- **welcome_email_function.zip** — Welcome email sender via SES
+- Place handler code here:
+  - `lambda/api_posts/lambda_function.py`
+  - `lambda/thumbnail/lambda_function.py`
+  - `lambda/welcome_email/lambda_function.py`
+- On `terraform plan/apply`, Terraform zips each directory into `lambda/build/*.zip` and injects:
+  - `filename = data.archive_file.<name>.output_path`
+  - `source_code_hash = data.archive_file.<name>.output_base64sha256`
 
-### Rebuilding Lambda Packages
-
-If you modify the Python source code in `lambda/lambda_function.py`, rebuild the ZIP packages:
-
-```bash
-cd lambda
-zip -j api_posts_function.zip lambda_function.py
-zip -j thumbnail_function.zip lambda_function.py
-zip -j welcome_email_function.zip lambda_function.py
-cd ..
-```
-
-**Note:** The `.zip` files are excluded from version control (see `.gitignore`). Rebuild them after cloning or before deploying to production.
-
-### Alternative: Archive in Terraform
-
-For production environments, consider using Terraform's `archive_file` data source to automatically package Lambda functions during `terraform apply`. This eliminates manual zipping and ensures consistency across environments.
+No manual zipping or committing binaries is required. The `lambda/build/` directory is ignored by Git.
 
 ## Environment Variables
 
@@ -153,6 +148,20 @@ This file is ignored by `.gitignore` to prevent accidentally committing secrets.
 3. **Use AWS Secrets Manager:** Store sensitive data like SES email addresses and API keys.
 
 4. **Enable CloudTrail:** Audit all AWS API calls for compliance.
+
+## CI/CD
+
+GitHub Actions workflows are provided under `.github/workflows`.
+
+Key behaviors related to Lambda packaging:
+- `terraform-plan.yml` runs on pull requests that change Terraform or Lambda source files:
+  - paths:
+    - `**.tf`
+    - `lambda/**`
+- `terraform-validate.yml` performs basic checks and scans for obvious secrets across nested Lambda sources:
+  - grep target updated to `lambda/**/*.py`
+
+Manual apply is available via the "Terraform Apply (Manual)" workflow.
 
 ## Testing
 
