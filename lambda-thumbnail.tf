@@ -13,6 +13,24 @@ resource "aws_lambda_function" "thumbnail_generator" {
     }
   }
 }
+
+
+resource "aws_lambda_function" "thumbnail" {
+  function_name = "myblog-thumbnail"
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.12"
+  role          = aws_iam_role.lambda_exec.arn
+
+  filename         = data.archive_file.thumbnail_function.output_path
+  source_code_hash = data.archive_file.thumbnail_function.output_base64sha256
+
+  environment {
+    variables = {
+      BUCKET_NAME = aws_s3_bucket.photos.bucket
+    }
+  }
+}
+
 resource "aws_lambda_permission" "allow_s3_invoke_thumbnail" {
   statement_id  = "AllowExecutionFromS3Bucket"
   action        = "lambda:InvokeFunction"
