@@ -25,8 +25,8 @@ resource "aws_cloudfront_distribution" "static" {
     target_origin_id       = "static-s3-origin"
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
-    default_ttl            = 86400         
-    max_ttl                = 31536000      
+    default_ttl            = 86400
+    max_ttl                = 31536000
 
     forwarded_values {
       query_string = false
@@ -38,12 +38,12 @@ resource "aws_cloudfront_distribution" "static" {
 
   restrictions {
     geo_restriction {
-      restriction_type = "none"   
+      restriction_type = "none"
       locations        = []
     }
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true  
+    cloudfront_default_certificate = true
   }
 }

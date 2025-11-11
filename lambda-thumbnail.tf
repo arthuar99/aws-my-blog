@@ -6,7 +6,7 @@ resource "aws_lambda_function" "thumbnail_generator" {
 
   filename         = "${path.module}/lambda/thumbnail_function.zip"
   source_code_hash = filebase64sha256("${path.module}/lambda/thumbnail_function.zip")
-  
+
   environment {
     variables = {
       THUMBNAIL_BUCKET = aws_s3_bucket.thumbnails.bucket
@@ -22,6 +22,6 @@ resource "aws_s3_bucket_notification" "photos_upload" {
     lambda_function_arn = aws_lambda_function.thumbnail_generator.arn
     events              = ["s3:ObjectCreated:*"]
     filter_prefix       = ""
-    filter_suffix       = ".jpg"  
+    filter_suffix       = ".jpg"
   }
 }
