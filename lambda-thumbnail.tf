@@ -4,8 +4,8 @@ resource "aws_lambda_function" "thumbnail_generator" {
   handler       = "lambda_function.lambda_handler"
   role          = aws_iam_role.lambda_thumbnail.arn
 
-  filename         = "${path.module}/lambda/thumbnail_function.zip"
-  source_code_hash = filebase64sha256("${path.module}/lambda/thumbnail_function.zip")
+  filename         = data.archive_file.thumbnail.output_path
+  source_code_hash = data.archive_file.thumbnail.output_base64sha256
 
   environment {
     variables = {

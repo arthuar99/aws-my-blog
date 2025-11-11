@@ -33,7 +33,7 @@ jobs:
 
       - name: Check for hardcoded secrets
         run: |
-          if grep -r "AKIA\|aws_secret_access_key\|password\|api_key" *.tf lambda/*.py 2>/dev/null; then
+          if grep -r "AKIA\|aws_secret_access_key\|password\|api_key" *.tf lambda/**/*.py 2>/dev/null; then
             echo "❌ Potential secrets found in code!"
             exit 1
           else
@@ -56,4 +56,4 @@ jobs:
 
       - name: Run TFLint
         run: tflint -f compact
-        continue-on-error: true
+        continue-on-error: tr
