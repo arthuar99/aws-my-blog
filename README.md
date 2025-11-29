@@ -1,6 +1,15 @@
 # AWS Blog Infrastructure
 
+![CI/CD](https://github.com/arthuar99/aws-my-blog/workflows/Terraform%20Validate%20%26%20Format/badge.svg)
+
 Infrastructure as Code (IaC) for a serverless blog application deployed on AWS using Terraform. This project provisions API Gateway, Lambda functions, DynamoDB, S3, CloudFront, SES, and related AWS services.
+
+**Features:**
+- 🚀 Fully automated CI/CD pipeline with GitHub Actions
+- ☁️ Serverless architecture on AWS
+- 📦 Automatic Lambda packaging and deployment
+- 🔒 Security scanning and best practices validation
+- 💰 Cost estimation on pull requests (optional)
 
 ## Project Structure
 
