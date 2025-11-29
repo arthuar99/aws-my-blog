@@ -263,18 +263,4 @@ For a rough estimate, this infrastructure incurs costs for:
 - CloudFront distribution
 - SES email sending
 
-Monitor AWS Billing Dashboard regularly: https://console.aws.amazon.com/billing/
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
-
-## Support
-
-For issues, questions, or contributions, please open a GitHub issue or contact the repository maintainer.
-
----
-
-**Last Updated:** November 11, 2025
-**Terraform Version:** 1.0+
-**AWS Region:** Configurable (default: us-east-1)
+Monitor AWS Billing Dashboard regularly
